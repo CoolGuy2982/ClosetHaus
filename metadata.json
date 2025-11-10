@@ -1,0 +1,5 @@
+{
+  "name": "ClosetHaus",
+  "description": "An AI-powered virtual styling app where users upload their photos and clothing items to visualize personalized outfits in a virtual home.",
+  "requestFramePermissions": []
+}
