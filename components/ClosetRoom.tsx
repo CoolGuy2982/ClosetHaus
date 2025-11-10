@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Room, ClothingItem, ClothingCategory, Outfit } from '../types';
 import Icon from './Icon';
+import ImageDropzone from './ImageDropzone';
+import { classifyClothingItem } from '../services/geminiService';
+
 
 interface ClosetRoomProps {
   setRoom: (room: Room) => void;
@@ -25,53 +28,69 @@ const fileToBase64 = (file: File): Promise<{mimeType: string, data: string}> => 
 
 
 const AddItemForm: React.FC<{ onAddItem: (item: Omit<ClothingItem, 'id'>) => void }> = ({ onAddItem }) => {
-    const [name, setName] = useState('');
-    const [category, setCategory] = useState<ClothingCategory>(ClothingCategory.TOP);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [isClassifying, setIsClassifying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setImageFile(file);
-            setPreview(URL.createObjectURL(file));
-        }
+    const handleFileChange = (file: File) => {
+        setImageFile(file);
+        setPreview(URL.createObjectURL(file));
+        setError(null);
     };
     
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !imageFile) {
-            alert("Please provide a name and an image for the item.");
+        if (!imageFile) {
+            setError("Please upload an image for the item.");
             return;
         }
-        const image = await fileToBase64(imageFile);
-        onAddItem({ name, category, image });
-        setName('');
-        setCategory(ClothingCategory.TOP);
-        setImageFile(null);
-        setPreview(null);
-        const fileInput = document.getElementById('item-image-upload') as HTMLInputElement;
-        if(fileInput) fileInput.value = '';
+        
+        setIsClassifying(true);
+        setError(null);
+        
+        try {
+            const image = await fileToBase64(imageFile);
+            const { name, category } = await classifyClothingItem(image);
+            
+            onAddItem({ name, category, image });
+            
+            // Reset form
+            setImageFile(null);
+            setPreview(null);
+
+        } catch (err: any) {
+            setError(err.message || "Failed to classify item.");
+        } finally {
+            setIsClassifying(false);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit} className="p-4 bg-white/60 rounded-lg border border-haus-border space-y-4">
             <h3 className="font-bold text-lg">Add New Item</h3>
-            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0">
-                 <label htmlFor="item-image-upload" className="cursor-pointer flex-shrink-0">
-                    <div className="w-24 h-24 border-2 border-dashed border-haus-border rounded-lg flex items-center justify-center hover:border-haus-accent transition-colors">
-                        {preview ? <img src={preview} alt="preview" className="w-full h-full object-cover rounded-md" /> : <Icon name="upload" className="w-8 h-8 text-haus-text-light"/>}
-                    </div>
-                </label>
-                <input id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange}/>
-                <div className="flex-grow space-y-2 w-full">
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Item Name (e.g., 'Blue Denim Jacket')" className="w-full p-2 border border-haus-border rounded-md focus:ring-1 focus:ring-haus-accent focus:outline-none bg-white"/>
-                    <select value={category} onChange={(e) => setCategory(e.target.value as ClothingCategory)} className="w-full p-2 border border-haus-border rounded-md focus:ring-1 focus:ring-haus-accent focus:outline-none bg-white">
-                        {Object.values(ClothingCategory).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                    </select>
+             <div className="flex flex-col md:flex-row items-center gap-4">
+                <div className="w-full md:w-1/3">
+                    <ImageDropzone 
+                        onUpload={handleFileChange}
+                        preview={preview}
+                        label="Drop image here"
+                        description="or click to upload"
+                        className="h-40"
+                    />
+                </div>
+                <div className="w-full md:w-2/3 flex flex-col justify-center">
+                    {error && <p className="text-sm text-red-600 bg-red-100 p-2 rounded-md mb-2">{error}</p>}
+                    <p className="text-haus-text-light mb-4">Upload an image of a clothing item, and our AI will automatically name and categorize it for you.</p>
+                    <button 
+                        type="submit" 
+                        disabled={!imageFile || isClassifying}
+                        className="w-full py-3 bg-haus-accent text-white font-bold rounded-lg hover:bg-opacity-90 transition-all disabled:bg-haus-border disabled:cursor-not-allowed"
+                    >
+                        {isClassifying ? 'Analyzing Item...' : 'Add to Closet'}
+                    </button>
                 </div>
             </div>
-            <button type="submit" className="w-full py-2 bg-haus-accent text-white font-bold rounded-lg hover:bg-opacity-90 transition-all">Add to Closet</button>
         </form>
     )
 }

@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Room, UserImages } from '../types';
-import Icon from './Icon';
+import ImageDropzone from './ImageDropzone';
 
 interface OnboardingProps {
   setUserImages: React.Dispatch<React.SetStateAction<UserImages>>;
@@ -20,38 +20,6 @@ const fileToBase64 = (file: File): Promise<{mimeType: string, data: string}> => 
     };
     reader.onerror = error => reject(error);
   });
-};
-
-const ImageUpload: React.FC<{
-    id: string;
-    label: string;
-    description: string;
-    image: string | null;
-    onUpload: (file: File) => void;
-}> = ({ id, label, description, image, onUpload }) => {
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            onUpload(e.target.files[0]);
-        }
-    };
-    return (
-        <div className="border border-haus-border rounded-lg p-6 text-center transition-colors hover:border-haus-accent">
-            <label htmlFor={id} className="cursor-pointer">
-                <div className="flex flex-col items-center">
-                    {image ? (
-                        <img src={`data:image/jpeg;base64,${image}`} alt={label} className="w-32 h-32 object-cover rounded-full mb-4" />
-                    ) : (
-                        <div className="w-32 h-32 rounded-full bg-haus-foreground flex items-center justify-center mb-4">
-                            <Icon name="upload" className="w-10 h-10 text-haus-accent" />
-                        </div>
-                    )}
-                    <h3 className="font-semibold text-lg text-haus-text">{label}</h3>
-                    <p className="text-sm text-haus-text-light mt-1">{description}</p>
-                </div>
-            </label>
-            <input id={id} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
-        </div>
-    );
 };
 
 
@@ -81,20 +49,18 @@ const Onboarding: React.FC<OnboardingProps> = ({ setUserImages, setRoom }) => {
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-8 mb-10">
-                    <ImageUpload 
-                        id="headshot-upload"
+                    <ImageDropzone 
+                        onUpload={(file) => handleUpload('headshot', file)}
                         label="Upload Headshot"
                         description="Front-facing, neutral expression"
-                        image={headshot}
-                        onUpload={(file) => handleUpload('headshot', file)}
+                        preview={headshot ? `data:image/jpeg;base64,${headshot}` : null}
                     />
-                     <ImageUpload 
-                        id="fullbody-upload"
+                     <ImageDropzone 
+                        onUpload={(file) => handleUpload('fullBody', file)}
                         label="Upload Full Body Photo"
                         description="Standing pose, clear view"
-                        image={fullBody}
-                        onUpload={(file) => handleUpload('fullBody', file)}
-                    />
+                        preview={fullBody ? `data:image/jpeg;base64,${fullBody}` : null}
+                     />
                 </div>
 
                 <div className="text-center">

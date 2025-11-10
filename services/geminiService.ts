@@ -1,11 +1,56 @@
-import { GoogleGenAI, Modality } from "@google/genai";
-import { ClothingItem, UserImages } from '../types';
+import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { ClothingItem, UserImages, ClothingCategory } from '../types';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable is not set");
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+export const classifyClothingItem = async (image: { mimeType: string; data: string }): Promise<{name: string, category: ClothingCategory}> => {
+  const prompt = `Analyze the clothing item in the image and classify it into one of the following categories: ${Object.values(ClothingCategory).join(', ')}. Also, provide a brief, descriptive name for the item (e.g., "Blue Denim Jacket", "White Sneakers"). Respond with ONLY a JSON object containing "category" and "name".`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-flash-lite-latest',
+      contents: {
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: image.mimeType, data: image.data } }
+        ]
+      },
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            category: { type: Type.STRING, enum: Object.values(ClothingCategory) }
+          },
+          required: ['name', 'category']
+        }
+      }
+    });
+
+    const jsonText = response.text.trim();
+    const result = JSON.parse(jsonText);
+    
+    // Validate the category received from the model
+    if (Object.values(ClothingCategory).includes(result.category)) {
+      return {
+        name: result.name,
+        category: result.category as ClothingCategory
+      };
+    } else {
+      throw new Error(`Invalid category received from AI: ${result.category}`);
+    }
+
+  } catch (error) {
+    console.error("Error classifying item with Gemini:", error);
+    throw new Error("Failed to classify the clothing item. Please try again.");
+  }
+};
+
 
 export const generateOutfit = async (
   userImages: UserImages,
