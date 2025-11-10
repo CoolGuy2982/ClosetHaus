@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Room, UserImages, ClothingItem, Outfit } from './types';
 import Onboarding from './components/Onboarding';
 import LivingRoom from './components/LivingRoom';
 import ClosetRoom from './components/ClosetRoom';
 import MirrorRoom from './components/MirrorRoom';
+import * as db from './services/db';
 
 const App: React.FC = () => {
   const [room, setRoom] = useState<Room>(Room.ONBOARDING);
@@ -14,38 +14,49 @@ const App: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Check local storage for user images to skip onboarding
-    const storedUserImages = localStorage.getItem('userImages');
-    if (storedUserImages) {
-      setUserImages(JSON.parse(storedUserImages));
-      setRoom(Room.LIVING_ROOM);
-    }
-    const storedClothing = localStorage.getItem('clothingItems');
-    if (storedClothing) {
-        setClothingItems(JSON.parse(storedClothing));
-    }
-     const storedOutfits = localStorage.getItem('savedOutfits');
-    if (storedOutfits) {
-        setSavedOutfits(JSON.parse(storedOutfits));
-    }
-    setIsInitialized(true);
+    const loadData = async () => {
+      try {
+        await db.initDB();
+        const storedUserImages = await db.getItem<UserImages>('userImages', 'userData');
+        if (storedUserImages?.fullBody && storedUserImages?.headshot) {
+          setUserImages(storedUserImages);
+          setRoom(Room.LIVING_ROOM);
+        }
+        
+        const storedClothing = await db.getItem<ClothingItem[]>('clothingItems', 'items');
+        if (storedClothing) {
+            setClothingItems(storedClothing);
+        }
+
+        const storedOutfits = await db.getItem<Outfit[]>('savedOutfits', 'items');
+        if (storedOutfits) {
+            setSavedOutfits(storedOutfits);
+        }
+      } catch (error) {
+        console.error("Failed to load data from database:", error);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+    
+    loadData();
   }, []);
 
   useEffect(() => {
     if(isInitialized && userImages.fullBody && userImages.headshot) {
-        localStorage.setItem('userImages', JSON.stringify(userImages));
+        db.setItem('userImages', 'userData', userImages).catch(err => console.error("Failed to save user images:", err));
     }
   }, [userImages, isInitialized]);
 
   useEffect(() => {
     if(isInitialized) {
-        localStorage.setItem('clothingItems', JSON.stringify(clothingItems));
+        db.setItem('clothingItems', 'items', clothingItems).catch(err => console.error("Failed to save clothing items:", err));
     }
   }, [clothingItems, isInitialized]);
 
    useEffect(() => {
     if(isInitialized) {
-        localStorage.setItem('savedOutfits', JSON.stringify(savedOutfits));
+        db.setItem('savedOutfits', 'items', savedOutfits).catch(err => console.error("Failed to save outfits:", err));
     }
   }, [savedOutfits, isInitialized]);
 
