@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Room, ClothingItem, ClothingCategory, Outfit } from '../../types';
 import Icon from './Icon';
 import ImageDropzone from './ImageDropzone';
-import { classifyClothingItem } from '../services/apiService'; // <-- CHANGED IMPORT
+import { classifyClothingItem } from '../services/apiService';
 
 
 interface ClosetRoomProps {
@@ -109,12 +109,13 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
   }
 
   const categorizedItems = useMemo(() => {
-    // Fix: Used generic type argument for reduce to ensure correct type inference for the accumulator.
-    // This resolves the issue where `items` was inferred as `unknown` when using `Object.entries`.
-    return clothingItems.reduce<Record<string, ClothingItem[]>>((acc, item) => {
+    // --- THIS BLOCK IS THE FIX ---
+    // Cast the initial value `{}` to the correct type to fix TS errors.
+    return clothingItems.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {});
+    }, {} as Record<string, ClothingItem[]>);
+    // --- END OF FIX ---
   }, [clothingItems]);
 
   return (
