@@ -110,11 +110,12 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
 
   const categorizedItems = useMemo(() => {
     // --- THIS BLOCK IS THE FIX ---
-    // Cast the initial value `{}` to the correct type to fix TS errors.
-    return clothingItems.reduce((acc, item) => {
+    // Use the generic type argument on reduce, as it was in your original file.
+    // This correctly types the accumulator for `Object.entries` to consume.
+    return clothingItems.reduce<Record<string, ClothingItem[]>>((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {} as Record<string, ClothingItem[]>);
+    }, {});
     // --- END OF FIX ---
   }, [clothingItems]);
 
