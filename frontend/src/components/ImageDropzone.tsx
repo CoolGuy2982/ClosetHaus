@@ -20,24 +20,28 @@ const ImageDropzone: React.FC<ImageDropzoneProps> = ({ onImageDrop, isUploading 
     }
   };
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  // --- TYPE CHANGE HERE ---
+  const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+  // --- TYPE CHANGE HERE ---
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  // --- TYPE CHANGE HERE ---
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  // --- TYPE CHANGE HERE ---
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
