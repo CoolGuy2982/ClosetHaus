@@ -110,9 +110,10 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
 
   const categorizedItems = useMemo(() => {
     // --- THIS BLOCK IS THE FIX ---
-    // We need to explicitly cast the initial value of the reduce function.
-    // This resolves the TS2339 error by ensuring `categorizedItems` is not 'unknown'.
-    return clothingItems.reduce<Record<string, ClothingItem[]>>((acc, item) => {
+    // We remove the generic <...> from the 'reduce' call itself (which causes TS2347).
+    // Instead, we apply a type assertion to the initial value '{}'.
+    // This correctly types 'categorizedItems' and resolves both errors.
+    return clothingItems.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
     }, {} as Record<string, ClothingItem[]>);
