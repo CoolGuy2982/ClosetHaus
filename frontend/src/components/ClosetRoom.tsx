@@ -172,7 +172,7 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {savedOutfits.length > 0 ? savedOutfits.map(outfit => (
                     <div key={outfit.id} className="bg-white rounded-lg border border-haus-border overflow-hidden shadow-sm">
-                        <img src={`data:image/jpeg;base64,${outfit.image}`} alt="Saved Outfit" className="w-full aspect-[3/4] object-cover" />
+                        <img src={outfit.image} alt="Saved Outfit" className="w-full aspect-[3/4] object-cover" />
                          <div className="p-3">
                             <p className="font-semibold">Outfit composed of:</p>
                             <ul className="text-sm text-haus-text-light list-disc list-inside">

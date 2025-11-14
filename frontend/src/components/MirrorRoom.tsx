@@ -130,7 +130,7 @@ const MirrorRoom: React.FC<MirrorRoomProps> = ({ setRoom, clothingItems, userIma
                                 </div>
                             )}
                             {!isLoading && (generatedImage ? 
-                                <img src={`data:image/jpeg;base64,${generatedImage}`} alt="Generated Outfit" className="w-full h-full object-contain rounded-lg"/> :
+                                <img src={generatedImage} alt="Generated Outfit" className="w-full h-full object-contain rounded-lg"/> :
                                 userImages.fullBody && <img src={`data:${userImages.fullBody.mimeType};base64,${userImages.fullBody.data}`} alt="User" className="w-full h-full object-contain rounded-lg opacity-50" />
                             )}
                             {!isLoading && !generatedImage && (
