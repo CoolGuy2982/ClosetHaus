@@ -110,13 +110,13 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
 
   const categorizedItems = useMemo(() => {
     // --- THIS BLOCK IS THE FIX ---
-    // We remove the generic <...> from the 'reduce' call itself (which causes TS2347).
-    // Instead, we apply a type assertion to the initial value '{}'.
-    // This correctly types 'categorizedItems' and resolves both errors.
-    return clothingItems.reduce((acc, item) => {
+    // Instead of asserting the type on `{}`, we explicitly type the `acc`
+    // (accumulator) argument in the reduce function. This is a more
+    // robust way to ensure TypeScript infers the correct return type.
+    return clothingItems.reduce((acc: Record<string, ClothingItem[]>, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {} as Record<string, ClothingItem[]>);
+    }, {}); // <-- The initial value is now a plain object
     // --- END OF FIX ---
   }, [clothingItems]);
 
@@ -138,7 +138,7 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
             <nav className="flex space-x-8">
                 <button onClick={() => setActiveTab('items')} className={`py-2 px-1 font-semibold transition-colors ${activeTab === 'items' ? 'text-haus-accent border-b-2 border-haus-accent' : 'text-haus-text-light hover:text-haus-text'}`}>
                     Clothing Items ({clothingItems.length})
-                </button>
+                </Ebutton>
                 <button onClick={() => setActiveTab('outfits')} className={`py-2 px-1 font-semibold transition-colors ${activeTab === 'outfits' ? 'text-haus-accent border-b-2 border-haus-accent' : 'text-haus-text-light hover:text-haus-text'}`}>
                     Saved Outfits ({savedOutfits.length})
                 </button>
