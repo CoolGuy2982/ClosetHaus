@@ -108,10 +108,11 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
   }
 
   const categorizedItems = useMemo(() => {
-    // Fix: Explicitly type the initial value for the reduce function's accumulator.
-    // This correctly types `categorizedItems`, which resolves two issues:
-    // 1. An "Untyped function calls may not accept type arguments" error on this line.
-    // 2. `items` being inferred as `unknown` in the `Object.entries` call below.
+    // Fix: The initial value for the reduce accumulator was an untyped empty object `{}`, 
+    // causing TypeScript to infer the type of `categorizedItems` incorrectly. 
+    // This led to `items` being of type `unknown` within the `Object.entries().map()`.
+    // By adding `as Record<string, ClothingItem[]>` we explicitly type the accumulator,
+    // ensuring `items` is correctly typed as `ClothingItem[]`.
     return clothingItems.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
