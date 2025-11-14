@@ -108,16 +108,17 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
       setClothingItems(prev => prev.filter(item => item.id !== id));
   }
 
-  const categorizedItems = useMemo(() => {
-    // --- THIS BLOCK IS THE FIX ---
-    // We explicitly type the `acc` (accumulator) argument in the reduce
-    // function. This is the correct way to type this for `useMemo`.
+  // --- THIS BLOCK IS THE FIX ---
+  // We are now EXPLICITLY typing the `categorizedItems` constant.
+  // This forces TypeScript to use the correct type and prevents
+  // it from ever being inferred as 'unknown'.
+  const categorizedItems: Record<string, ClothingItem[]> = useMemo(() => {
     return clothingItems.reduce((acc: Record<string, ClothingItem[]>, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
     }, {});
-    // --- END OF FIX ---
   }, [clothingItems]);
+  // --- END OF FIX ---
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
