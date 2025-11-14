@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Room, UserImages, ClothingItem, Outfit } from './types';
 import Onboarding from './components/Onboarding';
 import LivingRoom from './components/LivingRoom';
@@ -6,7 +6,20 @@ import ClosetRoom from './components/ClosetRoom';
 import MirrorRoom from './components/MirrorRoom';
 import * as db from './services/db';
 
+const useScreenHeight = () => {
+  useLayoutEffect(() => {
+    const setHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setHeight);
+    setHeight();
+    return () => window.removeEventListener('resize', setHeight);
+  }, []);
+};
+
+
 const App: React.FC = () => {
+  useScreenHeight();
   const [room, setRoom] = useState<Room>(Room.ONBOARDING);
   const [userImages, setUserImages] = useState<UserImages>({ headshot: null, fullBody: null });
   const [clothingItems, setClothingItems] = useState<ClothingItem[]>([]);
@@ -81,7 +94,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <main className="bg-haus-bg min-h-screen font-sans text-haus-text">
+    <main className="bg-haus-bg h-[var(--app-height,100vh)] font-sans text-haus-text overflow-hidden">
       {renderRoom()}
     </main>
   );

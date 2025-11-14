@@ -108,17 +108,19 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
   }
 
   const categorizedItems = useMemo(() => {
-    // Fix: Used generic type argument for reduce to ensure correct type inference for the accumulator.
-    // This resolves the issue where `items` was inferred as `unknown` when using `Object.entries`.
-    return clothingItems.reduce<Record<string, ClothingItem[]>>((acc, item) => {
+    // Fix: Explicitly type the initial value for the reduce function's accumulator.
+    // This correctly types `categorizedItems`, which resolves two issues:
+    // 1. An "Untyped function calls may not accept type arguments" error on this line.
+    // 2. `items` being inferred as `unknown` in the `Object.entries` call below.
+    return clothingItems.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {});
+    }, {} as Record<string, ClothingItem[]>);
   }, [clothingItems]);
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
-      <header className="flex items-center justify-between mb-8">
+    <div className="h-full flex flex-col p-4 sm:p-6 lg:p-8 pt-[calc(1rem+env(safe-area-inset-top))] pb-0">
+      <header className="flex items-center justify-between mb-8 flex-shrink-0">
         <button onClick={() => setRoom(Room.LIVING_ROOM)} className="flex items-center space-x-2 text-haus-text-light hover:text-haus-text transition-colors">
           <Icon name="back" className="w-5 h-5" />
           <span>Living Room</span>
@@ -127,7 +129,7 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
         <div className="w-24"></div>
       </header>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto w-full flex-1 overflow-y-auto pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <AddItemForm onAddItem={handleAddItem} />
 
         <div className="my-8 border-b border-haus-border">

@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Room, UserImages } from '../types';
 import ImageDropzone from './ImageDropzone';
@@ -41,7 +40,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ setUserImages, setRoom }) => {
     const canContinue = headshot && fullBody;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-haus-bg p-4">
+        <div className="h-full flex items-center justify-center bg-haus-bg p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div className="w-full max-w-4xl bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 md:p-12 border border-haus-border">
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold text-haus-text">Welcome to ClosetHaus</h1>

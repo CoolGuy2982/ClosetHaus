@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Room } from '../types';
 import Icon from './Icon';
@@ -31,7 +30,7 @@ const RoomLink: React.FC<{
 
 const LivingRoom: React.FC<LivingRoomProps> = ({ setRoom }) => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="h-full flex flex-col items-center justify-center p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))] overflow-y-auto">
         <header className="text-center mb-12">
             <h1 className="text-5xl font-extrabold text-haus-text">ClosetHaus</h1>
             <p className="text-xl text-haus-text-light mt-3">Your digital home of style.</p>

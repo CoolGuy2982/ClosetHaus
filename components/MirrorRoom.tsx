@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Room, ClothingItem, UserImages, ClothingCategory, Outfit } from '../types';
 import { generateOutfit } from '../services/geminiService';
@@ -88,23 +87,23 @@ const MirrorRoom: React.FC<MirrorRoomProps> = ({ setRoom, clothingItems, userIma
     );
 
     return (
-        <div className="relative flex flex-col h-screen bg-haus-bg">
+        <div className="relative flex flex-col h-full bg-haus-bg">
             {/* --- Mobile: Selection View (Overlay) --- */}
             <div className={`absolute inset-0 z-10 bg-haus-bg flex-col ${mobileView === 'selection' ? 'flex' : 'hidden'} lg:hidden`}>
-                <header className="flex-shrink-0 flex items-center justify-between p-4 border-b border-haus-border bg-white/50 backdrop-blur-sm">
+                <header className="flex-shrink-0 flex items-center justify-between p-4 border-b border-haus-border bg-white/50 backdrop-blur-sm pt-[calc(1rem+env(safe-area-inset-top))]">
                     <h1 className="text-xl font-bold text-haus-text">Choose Your Outfit</h1>
                     <button onClick={() => setMobileView('mirror')} className="px-4 py-2 bg-haus-accent text-white font-bold rounded-lg hover:bg-opacity-90 transition-all">
                         Done
                     </button>
                 </header>
-                <div className="flex-grow p-4 overflow-y-auto">
+                <div className="flex-grow p-4 overflow-y-auto pb-[calc(1rem+env(safe-area-inset-bottom))]">
                     {ClothingSelector}
                 </div>
             </div>
 
             {/* --- Main View (Desktop and Mobile Mirror phase) --- */}
             <div className="flex flex-col h-full">
-                <header className="flex-shrink-0 flex items-center justify-between p-4 border-b border-haus-border bg-white/50 backdrop-blur-sm">
+                <header className="flex-shrink-0 flex items-center justify-between p-4 border-b border-haus-border bg-white/50 backdrop-blur-sm pt-[calc(1rem+env(safe-area-inset-top))]">
                     <button onClick={() => setRoom(Room.LIVING_ROOM)} className="flex items-center space-x-2 text-haus-text-light hover:text-haus-text transition-colors">
                         <Icon name="back" className="w-5 h-5" />
                         <span className="hidden sm:inline">Living Room</span>
@@ -113,7 +112,7 @@ const MirrorRoom: React.FC<MirrorRoomProps> = ({ setRoom, clothingItems, userIma
                     <div className="w-24 hidden sm:block"></div>
                 </header>
 
-                <div className="flex-grow flex flex-col lg:grid lg:grid-cols-12 gap-4 p-4 overflow-hidden">
+                <div className="flex-grow flex flex-col lg:grid lg:grid-cols-12 gap-4 p-4 overflow-hidden pb-[calc(1rem+env(safe-area-inset-bottom))]">
                     {/* Left Panel: Desktop Clothing Items */}
                     <div className="hidden lg:flex flex-col lg:col-span-3 bg-white/50 rounded-lg border border-haus-border p-4 overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4">Select Items</h2>
@@ -125,7 +124,7 @@ const MirrorRoom: React.FC<MirrorRoomProps> = ({ setRoom, clothingItems, userIma
                         <div className="w-full h-full max-w-md aspect-[3/4] bg-white rounded-lg shadow-inner flex items-center justify-center relative">
                             {isLoading && (
                                 <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white rounded-lg">
-                                <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 <p className="mt-4 font-semibold">Creating your look...</p>
                                 </div>
                             )}
