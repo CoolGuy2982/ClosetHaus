@@ -1,0 +1,17 @@
+Ignore node_modules
+
+**/node_modules
+
+Ignore build artifacts
+
+**/dist
+
+Ignore local env files
+
+.env
+
+Ignore Git and Docker files
+
+.git
+.gitignore
+Dockerfile

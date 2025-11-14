@@ -1,3 +1,6 @@
+Omkar and Kenneth
+ClosetHaus
+
 ## Run Locally
 
 **Prerequisites:**  Node.js
