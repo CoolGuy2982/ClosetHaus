@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { collection, onSnapshot, addDoc } from 'firebase/firestore';
-import { db, auth } from '../services/db';
-import { Artifact } from '../types';
-import { Icon } from './Icon';
-import { ImageDropzone } from './ImageDropzone';
-// --- IMPORT CHANGE ---
-// Import the new apiService instead of geminiService
+import { getArtifacts, saveArtifact } from '../services/storageService';
+import { Artifact } from '../../types';
+import Icon from './Icon';
+import ImageDropzone from './ImageDropzone';
 import { classifyImage } from '../services/apiService';
-// --- END IMPORT CHANGE ---
 
 type Filter = 'All' | 'Tops' | 'Bottoms' | 'Outerwear' | 'Footwear' | 'Accessories' | 'Full Body';
 
@@ -19,34 +15,16 @@ export const ClosetRoom: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const userId = auth.currentUser?.uid;
-
-  // --- FULL FUNCTION ---
-  // This function is unchanged in its logic, but shown in full as requested.
   useEffect(() => {
-    if (!userId) return;
+    try {
+      const userArtifacts = getArtifacts();
+      setArtifacts(userArtifacts);
+    } catch (err) {
+      console.error('Error fetching artifacts:', err);
+      setError('Failed to load closet. Please refresh.');
+    }
+  }, []);
 
-    const artifactsColRef = collection(db, `users/${userId}/artifacts`);
-    const unsubscribe = onSnapshot(
-      artifactsColRef,
-      (snapshot) => {
-        const userArtifacts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Artifact[];
-        setArtifacts(userArtifacts);
-      },
-      (err) => {
-        console.error('Error fetching artifacts:', err);
-        setError('Failed to load closet. Please refresh.');
-      }
-    );
-
-    return () => unsubscribe();
-  }, [userId]);
-
-  // --- FULL FUNCTION ---
-  // This function is unchanged in its logic, but shown in full as requested.
   useEffect(() => {
     if (activeFilter === 'All') {
       setFilteredArtifacts(artifacts);
@@ -57,25 +35,13 @@ export const ClosetRoom: React.FC = () => {
     }
   }, [activeFilter, artifacts]);
 
-  // --- FULL FUNCTION ---
-  // This function IS updated to use the new `apiService`.
   const handleImageUpload = useCallback(
     async (file: File, base64: string) => {
-      if (!userId) {
-        setError('You must be logged in to add items.');
-        return;
-      }
       setIsUploading(true);
       setError(null);
 
       try {
-        // 1. Classify image using the backend service
-        // --- LOGIC CHANGE ---
-        // Call the new apiService, which calls our backend
         const classificationJson = await classifyImage(file);
-        // --- END LOGIC CHANGE ---
-
-        // 2. Parse the JSON response
         let artifactData;
         try {
           artifactData = JSON.parse(classificationJson);
@@ -85,17 +51,15 @@ export const ClosetRoom: React.FC = () => {
           throw new Error('The AI returned an invalid format. Please try again.');
         }
 
-        // 3. Create the new artifact object
         const newArtifact: Omit<Artifact, 'id'> = {
           ...artifactData,
-          imageUrl: base64, // Use the base64 string for display
-          userId: userId,
+          imageUrl: base64,
+          userId: 'local-user',
           createdAt: new Date().toISOString(),
         };
 
-        // 4. Save to Firestore
-        const artifactsColRef = collection(db, `users/${userId}/artifacts`);
-        await addDoc(artifactsColRef, newArtifact);
+        saveArtifact(newArtifact);
+        setArtifacts(getArtifacts());
         
       } catch (err) {
         console.error('Error in upload process:', err);
@@ -108,11 +72,9 @@ export const ClosetRoom: React.FC = () => {
         setIsUploading(false);
       }
     },
-    [userId] // --- END FULL FUNCTION ---
+    []
   );
 
-  // --- FULL FUNCTION ---
-  // This function is unchanged in its logic, but shown in full as requested.
   const filters: Filter[] = [
     'All',
     'Tops',
@@ -123,8 +85,6 @@ export const ClosetRoom: React.FC = () => {
     'Full Body',
   ];
 
-  // --- FULL FUNCTION ---
-  // This function is unchanged in its logic, but shown in full as requested.
   return (
     <motion.div
       className="p-4 md:p-8 h-full overflow-y-auto"
