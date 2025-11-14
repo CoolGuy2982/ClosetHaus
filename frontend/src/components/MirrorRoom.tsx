@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Icon } from './Icon';
+// --- IMPORT CHANGE ---
+import Icon from './Icon';
+// --- END IMPORT CHANGE ---
 
 // --- IMPORT CHANGE ---
 // Import the new apiService instead of geminiService
@@ -144,7 +146,9 @@ export const MirrorRoom: React.FC = () => {
               </>
             ) : (
               <>
-                <Icon name="Sparkles" className="w-5 h-5 mr-2" />
+                {/* --- CHANGE HERE --- */}
+                <Icon name="sparkles" className="w-5 h-5 mr-2" />
+                {/* --- END CHANGE --- */}
                 Generate
               </>
             )}
@@ -171,7 +175,9 @@ export const MirrorRoom: React.FC = () => {
           )}
           {!generatedImage && !isLoading && (
             <div className="text-center text-gray-500 p-8">
-              <Icon name="Wand" className="mx-auto h-16 w-16 text-gray-400" />
+              {/* --- CHANGE HERE --- */}
+              <Icon name="wand" className="mx-auto h-16 w-16 text-gray-400" />
+              {/* --- END CHANGE --- */}
               <h3 className="mt-2 text-lg font-medium">Your new style will appear here</h3>
               <p className="mt-1 text-sm">
                 Upload an image and write a prompt to get started.

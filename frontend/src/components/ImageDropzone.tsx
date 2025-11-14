@@ -1,76 +1,91 @@
 import React, { useState, useCallback } from 'react';
 import Icon from './Icon';
+import { motion } from 'framer-motion';
 
 interface ImageDropzoneProps {
-  label: string;
-  description: string;
-  preview: string | null;
-  onUpload: (file: File) => void;
-  className?: string;
+  onImageDrop: (file: File, base64: string) => void;
+  isUploading: boolean;
 }
 
-const ImageDropzone: React.FC<ImageDropzoneProps> = ({ label, description, preview, onUpload, className = '' }) => {
-    const [isDragging, setIsDragging] = useState(false);
+const ImageDropzone: React.FC<ImageDropzoneProps> = ({ onImageDrop, isUploading }) => {
+  const [isDragging, setIsDragging] = useState(false);
 
-    const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(true);
-    };
+  const handleFile = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onImageDrop(file, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-    };
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
-    const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
 
-    const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            onUpload(e.dataTransfer.files[0]);
-        }
-    };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            onUpload(e.target.files[0]);
-        }
-    };
-    
-    const id = `dropzone-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
 
-    return (
-        <div className={`border border-haus-border rounded-lg p-4 text-center transition-colors hover:border-haus-accent relative ${isDragging ? 'border-haus-accent bg-haus-accent/10' : ''} ${className}`}>
-            <label 
-                htmlFor={id} 
-                className="cursor-pointer w-full h-full flex flex-col items-center justify-center"
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-            >
-                {preview ? (
-                    <img src={preview} alt={label} className="w-full h-full object-cover rounded-md" />
-                ) : (
-                    <>
-                        <div className={`w-16 h-16 rounded-full ${isDragging ? 'bg-haus-accent/20' : 'bg-haus-foreground'} flex items-center justify-center mb-4 transition-colors`}>
-                            <Icon name="upload" className={`w-8 h-8 ${isDragging ? 'text-haus-accent' : 'text-haus-text-light'} transition-colors`} />
-                        </div>
-                        <h3 className="font-semibold text-md text-haus-text">{label}</h3>
-                        <p className="text-xs text-haus-text-light mt-1">{description}</p>
-                    </>
-                )}
-            </label>
-            <input id={id} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  return (
+    <div className="relative mb-6">
+      <label
+        htmlFor="file-dropzone"
+        className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+          isDragging ? 'border-gray-800 bg-gray-50' : 'border-gray-300 bg-white'
+        } ${isUploading ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          {isUploading ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                className="w-10 h-10 border-4 border-gray-800 border-t-transparent rounded-full"
+              />
+              <p className="mt-4 text-sm font-medium text-gray-700">Uploading & Classifying...</p>
+            </>
+          ) : (
+            <>
+              <Icon name="upload" className="w-10 h-10 mb-3 text-gray-500" />
+              <p className="mb-2 text-sm text-gray-700 font-semibold">Click to upload or drag and drop</p>
+              <p className="text-xs text-gray-500">PNG, JPG, or GIF</p>
+            </>
+          )}
         </div>
-    );
+        <input id="file-dropzone" type="file" accept="image/*" className="hidden" onChange={onFileChange} disabled={isUploading} />
+      </label>
+    </div>
+  );
 };
 
 export default ImageDropzone;

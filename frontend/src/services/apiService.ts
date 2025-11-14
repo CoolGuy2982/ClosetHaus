@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Artifact } from '../types';
+import { Artifact } from '../../types';
 
 // The backend API will be served from the same origin, so we can use relative paths.
 const API_URL = '/api';

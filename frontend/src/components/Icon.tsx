@@ -1,6 +1,9 @@
 import React from 'react';
 
-type IconName = 'home' | 'closet' | 'mirror' | 'upload' | 'back' | 'plus' | 'trash' | 'check' | 'save' | 'shirt' | 'pants' | 'shoe' | 'diamond';
+type IconName = 
+  'home' | 'closet' | 'mirror' | 'upload' | 'back' | 'plus' | 'trash' | 
+  'check' | 'save' | 'shirt' | 'pants' | 'shoe' | 'diamond' | 
+  'archive' | 'sparkles' | 'wand'; // <-- Added new icons
 
 interface IconProps {
   name: IconName;
@@ -23,6 +26,10 @@ const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6' }) => {
     pants: <path strokeLinecap="round" strokeLinejoin="round" d="M6 21l2-10h8l2 10M8.5 11l-1-7h10l-1 7" />,
     shoe: <path strokeLinecap="round" strokeLinejoin="round" d="M3.465 14.535c-1.333-1.333-1.333-3.547 0-4.88l5.657-5.657c.105-.105.21-.21.315-.315C10.5 3.105 11.235 3 12 3c1.333 0 2 .5 3 1.5.5.5 1 1.5 1.5 1.5s1-.833 1.5-1.5c1-1 1.667-1.5 3-1.5.765 0 1.5.105 2.06.685.105.105.21.21.315.315l5.657 5.657c1.333 1.333 1.333 3.547 0 4.88l-5.657 5.657c-.105.105-.21.21-.315.315-.56.58-1.295.68-2.06.68-1.333 0-2-.5-3-1.5-.5-.5-1-1.5-1.5-1.5s-1 .833-1.5 1.5c-1 1-1.667 1.5-3 1.5-.765 0-1.5-.1-2.06-.68-.105-.105-.21-.21-.315-.315L3.465 14.535z" />,
     diamond: <path strokeLinecap="round" strokeLinejoin="round" d="M12 2L2 7l10 15 10-15-10-5zM2 7l10 5 10-5M12 2v20" />,
+    // --- New Icons ---
+    archive: <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-1.414 1.414a1 1 0 01-.707.293H10.414a1 1 0 01-.707-.293L8.293 13.293A1 1 0 007.586 13H4" />,
+    sparkles: <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-6.857 2.143L12 21l-2.143-6.857L3 12l6.857-2.143L12 3z" />,
+    wand: <path strokeLinecap="round" strokeLinejoin="round" d="M15.3 15.3a2.4 2.4 0 10-3.4-3.4 2.4 2.4 0 003.4 3.4zM12 21l3.7-3.7M12 3L8.3 6.7" />,
   };
 
   return (

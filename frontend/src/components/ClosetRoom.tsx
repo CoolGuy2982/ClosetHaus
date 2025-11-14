@@ -151,7 +151,9 @@ export const ClosetRoom: React.FC = () => {
 
       {artifacts.length === 0 && !isUploading && (
         <div className="text-center py-12 text-gray-500">
-          <Icon name="Archive" className="mx-auto h-12 w-12 text-gray-400" />
+          {/* --- CHANGE HERE --- */}
+          <Icon name="archive" className="mx-auto h-12 w-12 text-gray-400" />
+          {/* --- END CHANGE --- */}
           <h3 className="mt-2 text-lg font-medium">Your closet is empty</h3>
           <p className="mt-1 text-sm">
             Drop an image above to start archiving your collection.
