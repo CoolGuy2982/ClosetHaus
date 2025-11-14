@@ -110,12 +110,12 @@ const ClosetRoom: React.FC<ClosetRoomProps> = ({ setRoom, clothingItems, setClot
 
   const categorizedItems = useMemo(() => {
     // --- THIS BLOCK IS THE FIX ---
-    // Use the generic type argument on reduce, as it was in your original file.
-    // This correctly types the accumulator for `Object.entries` to consume.
+    // We need to explicitly cast the initial value of the reduce function.
+    // This resolves the TS2339 error by ensuring `categorizedItems` is not 'unknown'.
     return clothingItems.reduce<Record<string, ClothingItem[]>>((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {});
+    }, {} as Record<string, ClothingItem[]>);
     // --- END OF FIX ---
   }, [clothingItems]);
 
