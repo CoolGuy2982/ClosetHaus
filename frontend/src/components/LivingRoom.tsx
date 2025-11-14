@@ -1,83 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { Artifact } from '../../types';
-import { getArtifacts } from '../services/storageService';
+import React from 'react';
+import { Room } from '../../types';
+import Icon from './Icon';
 
-export const LivingRoom: React.FC = () => {
-  const [tops, setTops] = useState<Artifact[]>([]);
-  const [bottoms, setBottoms] = useState<Artifact[]>([]);
-  const [selectedTop, setSelectedTop] = useState<Artifact | null>(null);
-  const [selectedBottom, setSelectedBottom] = useState<Artifact | null>(null);
+interface LivingRoomProps {
+  setRoom: (room: Room) => void;
+}
 
-  useEffect(() => {
-    const allArtifacts = getArtifacts();
-    setTops(allArtifacts.filter(item => item.category === 'Tops'));
-    setBottoms(allArtifacts.filter(item => item.category === 'Bottoms'));
-  }, []);
+const RoomLink: React.FC<{
+    icon: 'closet' | 'mirror';
+    title: string;
+    description: string;
+    onClick: () => void;
+}> = ({ icon, title, description, onClick }) => (
+    <button
+        onClick={onClick}
+        className="group text-left p-8 bg-white/50 rounded-xl border border-haus-border hover:border-haus-accent hover:bg-white transition-all duration-300 transform hover:-translate-y-1 shadow-sm hover:shadow-xl"
+    >
+        <div className="flex items-center justify-center w-16 h-16 bg-haus-foreground rounded-lg mb-6 group-hover:bg-haus-accent transition-colors duration-300">
+            <Icon name={icon} className="w-8 h-8 text-haus-accent group-hover:text-white transition-colors duration-300" />
+        </div>
+        <h3 className="text-2xl font-bold text-haus-text">{title}</h3>
+        <p className="mt-2 text-haus-text-light">{description}</p>
+        <div className="mt-6 text-haus-accent font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Enter Room &rarr;
+        </div>
+    </button>
+);
 
+
+const LivingRoom: React.FC<LivingRoomProps> = ({ setRoom }) => {
   return (
-    <div className="p-8 h-full flex flex-col md:flex-row gap-8">
-      {/* --- Outfit Display --- */}
-      <div className="w-full md:w-1/3 h-1/2 md:h-full flex flex-col items-center justify-center bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Current Outfit</h2>
-        <div className="w-full aspect-w-3 aspect-h-4">
-          <div className="w-full h-64 bg-gray-100 rounded-lg mb-4 overflow-hidden flex items-center justify-center">
-            {selectedTop ? (
-              <img src={selectedTop.imageUrl} alt={selectedTop.name} className="w-full h-full object-contain" />
-            ) : (
-              <span className="text-gray-500">Select a Top</span>
-            )}
-          </div>
-          <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-            {selectedBottom ? (
-              <img src={selectedBottom.imageUrl} alt={selectedBottom.name} className="w-full h-full object-contain" />
-            ) : (
-              <span className="text-gray-500">Select Bottoms</span>
-            )}
-          </div>
-        </div>
-        <button className="mt-6 w-full bg-gray-800 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-700 transition-all duration-200">
-          Save Outfit
-        </button>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <header className="text-center mb-12">
+            <h1 className="text-5xl font-extrabold text-haus-text">ClosetHaus</h1>
+            <p className="text-xl text-haus-text-light mt-3">Your digital home of style.</p>
+        </header>
 
-      {/* --- Item Selection --- */}
-      <div className="w-full md:w-2/3 h-1/2 md:h-full flex flex-col gap-6 overflow-y-auto">
-        {/* --- Tops --- */}
-        <div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Tops</h3>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {tops.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedTop(item)}
-                className={`w-full aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
-                  selectedTop?.id === item.id ? 'border-gray-800 shadow-xl scale-105' : 'border-transparent hover:border-gray-300'
-                }`}
-              >
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
+        <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8">
+            <RoomLink
+                icon="closet"
+                title="The Closet"
+                description="Manage your clothes, shoes, and accessories. Upload new items to your digital wardrobe."
+                onClick={() => setRoom(Room.CLOSET)}
+            />
+            <RoomLink
+                icon="mirror"
+                title="The Mirror Room"
+                description="Try on outfits, mix and match items, and see your new look instantly with AI."
+                onClick={() => setRoom(Room.MIRROR)}
+            />
         </div>
-
-        {/* --- Bottoms --- */}
-        <div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Bottoms</h3>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {bottoms.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedBottom(item)}
-                className={`w-full aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
-                  selectedBottom?.id === item.id ? 'border-gray-800 shadow-xl scale-105' : 'border-transparent hover:border-gray-300'
-                }`}
-              >
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+        <footer className="mt-16 text-center text-haus-text-light">
+            <p>Navigate your home by selecting a room.</p>
+        </footer>
     </div>
   );
 };
+
+export default LivingRoom;

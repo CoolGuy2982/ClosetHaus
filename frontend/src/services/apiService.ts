@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Artifact } from '../../types';
+import { ClothingCategory, ClothingItem, UserImages } from '../../types';
 
 // The backend API will be served from the same origin, so we can use relative paths.
 const API_URL = '/api';
@@ -7,14 +7,14 @@ const API_URL = '/api';
 /**
  * Calls the backend to classify an image file.
  * @param file The image File object to classify.
- * @returns A promise that resolves to the raw JSON string from the backend.
+ * @returns A promise that resolves to the classification object.
  */
-export const classifyImage = async (file: File): Promise<string> => {
+export const classifyClothingItem = async (file: File): Promise<{name: string, category: ClothingCategory}> => {
   const formData = new FormData();
   formData.append('image', file);
 
   try {
-    const response = await axios.post<{ classificationText: string }>(
+    const response = await axios.post<{name: string, category: ClothingCategory}>(
       `${API_URL}/classify`,
       formData,
       {
@@ -23,8 +23,8 @@ export const classifyImage = async (file: File): Promise<string> => {
         },
       }
     );
-    // The backend now sends { classificationText: "..." }
-    return response.data.classificationText;
+    // The backend now sends { name: "...", category: "..." }
+    return response.data;
   } catch (error) {
     console.error('Error uploading/classifying image:', error);
     throw new Error('Failed to classify image. Please try again.');
@@ -32,21 +32,21 @@ export const classifyImage = async (file: File): Promise<string> => {
 };
 
 /**
- * Calls the backend to generate a new image based on a prompt and an existing image.
- * @param prompt The text prompt for generation.
- * @param imageBase64 The base64 string of the source image.
+ * Calls the backend to generate a new outfit.
+ * @param userImages The user's headshot and full body images.
+ * @param items The array of clothing items to wear.
  * @returns A promise that resolves to the base64 string of the *newly generated* image.
  */
-export const generateImageWithNanoBanana = async (
-  prompt: string,
-  imageBase64: string
+export const generateOutfit = async (
+  userImages: UserImages,
+  items: ClothingItem[]
 ): Promise<string> => {
   try {
     const response = await axios.post<{ base64Image: string }>(
       `${API_URL}/generate`,
       {
-        prompt,
-        imageBase64,
+        userImages,
+        items,
       }
     );
     
@@ -56,6 +56,9 @@ export const generateImageWithNanoBanana = async (
     
   } catch (error) {
     console.error('Error generating image:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data || 'Failed to generate image. Please try again.');
+    }
     throw new Error('Failed to generate image. Please try again.');
   }
 };

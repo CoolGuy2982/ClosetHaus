@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          // Proxy API requests to the backend server
+          '/api': {
+            target: 'http://localhost:8080', // Assuming backend runs on 8080
+            changeOrigin: true,
+          },
+        },
       },
       plugins: [react()],
       define: {
@@ -16,7 +23,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, './src'),
         }
       }
     };

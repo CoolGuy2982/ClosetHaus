@@ -1,136 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { Room, UserImages } from '../../types';
+import ImageDropzone from './ImageDropzone';
 
 interface OnboardingProps {
-  onComplete: () => void;
+  setUserImages: React.Dispatch<React.SetStateAction<UserImages>>;
+  setRoom: (room: Room) => void;
 }
 
-const steps = [
-  {
-    title: 'Welcome to ClosetHaus!',
-    description: 'Let\'s get your digital closet set up. First, what are some of your favorite styles?',
-    key: 'styles',
-    type: 'tags',
-    options: ['Minimalist', 'Vintage', 'Streetwear', 'Bohemian', 'Classic', 'Y2K', 'Grunge', 'Athleisure'],
-  },
-  {
-    title: 'What\'s Your Goal?',
-    description: 'How do you plan to use ClosetHaus?',
-    key: 'goal',
-    type: 'choice',
-    options: ['Archive my collection', 'Discover new outfits', 'Plan my looks', 'All of the above'],
-  },
-  {
-    title: 'You\'re All Set!',
-    description: 'Your ClosetHaus is ready. Let\'s start by adding your first few items.',
-    key: 'final',
-    type: 'final',
-  },
-];
-
-export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [onboardingData, setOnboardingData] = useState<any>({
-    styles: [],
-    goal: '',
+const fileToBase64 = (file: File): Promise<{mimeType: string, data: string}> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const mimeType = result.split(',')[0].split(':')[1].split(';')[0];
+      const data = result.split(',')[1];
+      resolve({ mimeType, data });
+    };
+    reader.onerror = error => reject(error);
   });
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      onComplete();
-    }
-  };
-
-  const handleTagClick = (option: string) => {
-    setOnboardingData((prev: any) => {
-      const newStyles = prev.styles.includes(option)
-        ? prev.styles.filter((s: string) => s !== option)
-        : [...prev.styles, option];
-      return { ...prev, styles: newStyles };
-    });
-  };
-
-  const handleChoiceClick = (option: string) => {
-    setOnboardingData((prev: any) => ({ ...prev, goal: option }));
-  };
-
-  const renderStepContent = () => {
-    const step = steps[currentStep];
-    switch (step.type) {
-      case 'tags':
-        return (
-          <div className="flex flex-wrap gap-3">
-            {step.options?.map((option) => (
-              <button
-                key={option}
-                onClick={() => handleTagClick(option)}
-                className={`px-4 py-2 rounded-full font-medium transition-all ${
-                  onboardingData.styles.includes(option)
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        );
-      case 'choice':
-        return (
-          <div className="flex flex-col gap-3">
-            {step.options?.map((option) => (
-              <button
-                key={option}
-                onClick={() => handleChoiceClick(option)}
-                className={`w-full p-4 rounded-lg text-left font-medium transition-all ${
-                  onboardingData.goal === option
-                    ? 'bg-gray-800 text-white shadow-lg'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        );
-      case 'final':
-        return <p className="text-gray-600">You can now explore your closet and start adding items.</p>;
-      default:
-        return null;
-    }
-  };
-
-  const step = steps[currentStep];
-
-  return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">{step.title}</h2>
-        <p className="text-gray-600 mb-8">{step.description}</p>
-        
-        <div className="min-h-[150px]">
-          {renderStepContent()}
-        </div>
-
-        <button
-          onClick={handleNext}
-          className="w-full bg-gray-800 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-700 transition-all duration-200 ease-in-out mt-8"
-        >
-          {currentStep === steps.length - 1 ? 'Go to Closet' : 'Continue'}
-        </button>
-
-        <div className="flex gap-2 mt-8 justify-center">
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={`h-2 w-8 rounded-full transition-all ${
-                index <= currentStep ? 'bg-gray-800' : 'bg-gray-200'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 };
+
+
+const Onboarding: React.FC<OnboardingProps> = ({ setUserImages, setRoom }) => {
+    const [headshot, setHeadshot] = useState<string | null>(null);
+    const [fullBody, setFullBody] = useState<string | null>(null);
+
+    const handleUpload = useCallback(async (type: 'headshot' | 'fullBody', file: File) => {
+        const { mimeType, data } = await fileToBase64(file);
+        if (type === 'headshot') {
+            setHeadshot(data);
+            setUserImages(prev => ({ ...prev, headshot: { mimeType, data } }));
+        } else {
+            setFullBody(data);
+            setUserImages(prev => ({ ...prev, fullBody: { mimeType, data } }));
+        }
+    }, [setUserImages]);
+    
+    const canContinue = headshot && fullBody;
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-haus-bg p-4">
+            <div className="w-full max-w-4xl bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 md:p-12 border border-haus-border">
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl font-bold text-haus-text">Welcome to ClosetHaus</h1>
+                    <p className="text-lg text-haus-text-light mt-2">Let's create your digital avatar. Upload two photos to get started.</p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-8 mb-10">
+                    <ImageDropzone 
+                        onUpload={(file) => handleUpload('headshot', file)}
+                        label="Upload Headshot"
+                        description="Front-facing, neutral expression"
+                        preview={headshot ? `data:image/jpeg;base64,${headshot}` : null}
+                    />
+                     <ImageDropzone 
+                        onUpload={(file) => handleUpload('fullBody', file)}
+                        label="Upload Full Body Photo"
+                        description="Standing pose, clear view"
+                        preview={fullBody ? `data:image/jpeg;base64,${fullBody}` : null}
+                     />
+                </div>
+
+                <div className="text-center">
+                    <button 
+                        onClick={() => setRoom(Room.LIVING_ROOM)}
+                        disabled={!canContinue}
+                        className="px-10 py-3 bg-haus-accent text-white font-bold rounded-lg shadow-md hover:bg-opacity-90 transition-all disabled:bg-haus-border disabled:cursor-not-allowed disabled:shadow-none"
+                    >
+                        Enter ClosetHaus
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Onboarding;
