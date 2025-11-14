@@ -12,7 +12,10 @@ WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json* ./
 RUN npm install
 COPY backend/ .
-RUN tsc
+# --- CHANGE HERE ---
+# Use the npm build script to correctly find the tsc binary
+RUN npm run build
+# --- END CHANGE ---
 
 # Stage 3: Create the final production image
 FROM node:20-slim
