@@ -129,10 +129,12 @@ const MirrorRoom: React.FC<MirrorRoomProps> = ({ setRoom, clothingItems, userIma
                                 <p className="mt-4 font-semibold">Creating your look...</p>
                                 </div>
                             )}
+                            {/* --- THIS IS THE FIX --- */}
                             {!isLoading && (generatedImage ? 
                                 <img src={generatedImage} alt="Generated Outfit" className="w-full h-full object-contain rounded-lg"/> :
                                 userImages.fullBody && <img src={`data:${userImages.fullBody.mimeType};base64,${userImages.fullBody.data}`} alt="User" className="w-full h-full object-contain rounded-lg opacity-50" />
                             )}
+                            {/* --- END OF FIX --- */}
                             {!isLoading && !generatedImage && (
                                 <div className="absolute inset-0 flex items-center justify-center text-center p-4">
                                 <p className="text-haus-text-light">Select items from your closet and click 'Generate Outfit' to see the magic happen.</p>
